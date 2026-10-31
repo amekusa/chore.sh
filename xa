@@ -69,9 +69,7 @@ _main() {
 	printf "Created '%s'.\n" "$dst"
 
 	case "$ext" in
-		tar.bz*|tar.tbz*) tar xjvf "$src" -C "$dst" ;;
-		tar.gz|tar.tgz) tar xzvf "$src" -C "$dst" ;;
-		tar.xz|tar.txz) tar xJvf "$src" -C "$dst" ;;
+		tar.*) tar xf "$src" -C "$dst" ;;
 		zip) unzip "$src" -d "$dst" ;;
 		rar) unrar x "$src" "$dst" ;;
 		7z) 7z x "$src" -o"$dst" ;;
