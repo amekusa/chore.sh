@@ -1,0 +1,107 @@
+#!/usr/bin/env bash
+#
+# chores.sh/xa
+# @github.com/amekusa/chores.sh
+#
+
+_main() {
+	if [ $# = 0 ] || [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
+		local exec="$(basename $0)"
+		cat <<- EOF
+		$exec
+		Extracts an archive.
+
+		Usage:
+		  $exec <archive>
+
+		EOF
+		return 1
+	fi
+	local src="$1"
+	if [[ ! "$src" =~ ^(.+)(\.(zip|7z|rar|tar\.t?(gz|xz|bz2?))) ]]; then
+		printf "[Error] Unsupported file: '%s'.\n" "$src" >&2
+		return 1
+	fi
+	local dst="${BASH_REMATCH[1]}"
+	local ext="${BASH_REMATCH[3]}"
+
+	printf "Extracting...\n"
+	printf "> src: '%s'\n" "$src"
+	printf "> dst: '%s'\n" "$dst"
+
+	if [ -a "$dst" ]; then
+		if [ -d "$dst" ]; then
+			printf "Destination directory already exists.\n"
+			while true; do
+				local answer
+				read -n 1 -p "Delete and recreate '$dst'? [Y/N/C] " answer; echo
+				case "$answer" in
+				[Yy])
+					if ! rm -rf "$dst"; then
+						printf "[Error] Failed to delete '%s'.\n" "$dst" >&2
+						return 1
+					fi
+					printf "Deleted '%s'.\n" "$dst"
+					break
+					;;
+				[Nn])
+					:
+					break
+					;;
+				[Cc])
+					printf "Cancelled.\n"
+					return 1
+					;;
+				*)
+					printf "Answer with Y, N or C.\n"
+					;;
+				esac
+			done
+		else
+			printf "[Error] Destination path already exists: '%s'.\n" "$dst" >&2
+			return 1
+		fi
+	fi
+	if ! mkdir -p "$dst"; then
+		printf "[Error] Failed to create '%s'.\n" "$dst" >&2
+		return 1
+	fi
+	printf "Created '%s'.\n" "$dst"
+
+	case "$ext" in
+		tar.bz*|tar.tbz*) tar xjvf "$src" -C "$dst" ;;
+		tar.gz|tar.tgz) tar xzvf "$src" -C "$dst" ;;
+		tar.xz|tar.txz) tar xJvf "$src" -C "$dst" ;;
+		zip) unzip "$src" -d "$dst" ;;
+		rar) unrar x "$src" "$dst" ;;
+		7z) 7z x "$src" -o"$dst" ;;
+	esac
+	if [ $? -ne 0 ]; then
+		printf "[Error] Failed to extract '%s'.\n" "$dst" >&2
+		return 1
+	fi
+
+	printf "Extraction complete.\n"
+	printf "> src: '%s'\n" "$src"
+	printf "> dst: '%s'\n" "$dst"
+
+	while true; do
+		read -n 1 -p "Copy '$dst' to clipboard? [Y/N] " answer; echo
+		case "$answer" in
+		[Yy])
+			"$(dirname $0)/cb" "$dst"
+			break
+			;;
+		[Nn])
+			:
+			break
+			;;
+		*)
+			printf "Answer with Y or N.\n"
+			;;
+		esac
+	done
+}
+
+_main "$@"
+
