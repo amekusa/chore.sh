@@ -24,7 +24,7 @@ _main() {
 	elif command -v "clip" &> /dev/null; then
 		printf "$*" | clip
 	else
-		printf "[Error] No available command.\n" >&2
+		printf "[Error] No command available.\n" >&2
 		return 1
 	fi
 }
