@@ -1,1 +1,1 @@
-# CHORE.SH
+# CHORES.SH
