@@ -68,13 +68,12 @@ _main() {
 	fi
 	printf "Created '%s'.\n" "$dst"
 
-	case "$ext" in
+	if ! case "$ext" in
 		tar.*) tar xf "$src" -C "$dst" ;;
 		zip) unzip "$src" -d "$dst" ;;
 		rar) unrar x "$src" "$dst" ;;
 		7z) 7z x "$src" -o"$dst" ;;
-	esac
-	if [ $? -ne 0 ]; then
+	esac; then
 		printf "[Error] Failed to extract '%s'.\n" "$dst" >&2
 		return 1
 	fi
