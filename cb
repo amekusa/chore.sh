@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+#
+# chores.sh/cb
+# @github.com/amekusa/chores.sh
+#
+
+_main() {
+	if [ $# -eq 0 ] || [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
+		local exec="$(basename $0)"
+		cat <<- EOF
+		$exec
+		Copies a string to clipboard.
+
+		Usage:
+		  $exec <string>
+
+		EOF
+		return 1
+	fi
+	if command -v "pbcopy" &> /dev/null; then
+		printf "$*" | pbcopy
+	elif command -v "xclip" &> /dev/null; then
+		printf "$*" | xclip -selection clipboard
+	elif command -v "clip" &> /dev/null; then
+		printf "$*" | clip
+	else
+		printf "[Error] No available command.\n" >&2
+		return 1
+	fi
+}
+
+_main "$@"
+
